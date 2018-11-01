@@ -116,7 +116,7 @@ def recsystem(recuser):
             else:
                 cursor = conn.execute("SELECT username FROM user WHERE userid = %s" % (n1)) #Finding user name
                 for j in cursor:
-                    print("\nRecommendations for {} : ".format(j[1]))
+                    print("\nRecommendations for {} : ".format(j[0]))
                     print("---------------------------------------\n")
                 for i in animelist:
                     c = conn.execute("SELECT animename FROM anime_details WHERE animeid = %s" %(i)) #finding anime names

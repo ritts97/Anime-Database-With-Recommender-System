@@ -236,9 +236,11 @@ while True:
                                 print("----" * 29)
                                 break
                 
+                    #To get anime recommendations
                     if(ch == '1'):
-                        mainfn(row[2])
+                        recsystem(row[2])
                     
+                    #Update user details
                     if ch == '5' :
                         print("\n1. Update name")
                         print("2. Update location")
@@ -314,7 +316,7 @@ while True:
                                 x = 0
                                 conn.execute("DELETE FROM user_ratings WHERE userid = %s AND animeid = %s" % (y, naid))
                                 conn.commit()
-                                insertcsv()
+                                insertcsv() #To update 'out.csv'
                                 break
                         if x == -1:
                             print("You have not rated this anime yet!")
@@ -346,7 +348,7 @@ while True:
                                             else:
                                                 conn.execute("UPDATE user_ratings SET rating = %s WHERE userid = %s AND animeid = %s" % (rate1, y, rid1))
                                                 conn.commit()
-                                                insertcsv()
+                                                insertcsv() #To update 'out.csv'
                                                 break
                         if z == -1:
                             while True:
@@ -560,9 +562,12 @@ while True:
                                 server.ehlo()
                                 server.starttls()
                                 server.ehlo()
-                                server.login("ritwikaghosh48@gmail.com","cphe-b39p-39fl")
+                                #SMTP login might fail because Google blocks sign-in attempts from apps which do not use modern security standards.
+                                #Turn off this safety feature by going to this link -
+                                #https://myaccount.google.com/lesssecureapps
+                                server.login("youremail@gmail.com","yourpassword") #put your gmail address and password
                                 text = msg.as_string()
-                                server.sendmail(fromad, aem, text)
+                                server.sendmail(fromad, aem, text) #Send mail to the admin with the new password
                                 conn.execute("UPDATE admin SET adminpassword = ? WHERE adminemail= ?" , (r, aem))
                                 conn.commit()
                                 server.quit()
@@ -586,13 +591,11 @@ while True:
                                 server.ehlo()
                                 server.starttls()
                                 server.ehlo()
-                                #SMTP login might fail because Google blocks sign-in attempts from apps which do not use modern security standards.
-                                #Turn off this safety feature by going to this link -
-                                #https://myaccount.google.com/lesssecureapps
+                                #Login to Google account
                                 server.login("youremail@gmail.com","yourpassword") #put your gmail address and password
                                 text = msg.as_string()
-                                server.sendmail(fromad, uem, text)
-                                conn.execute("UPDATE login_info SET password = ? WHERE emailid = ?" , (r, uem))
+                                server.sendmail(fromad, uem, text) #Send mail to the user with the new password
+                                conn.execute("UPDATE login_info SET password = ? WHERE emailid = ?" , (r, uem)) #Update the database
                                 conn.commit()
                                 server.quit()
                                 print("\nPlease check your registered email ID for your new password.\n")

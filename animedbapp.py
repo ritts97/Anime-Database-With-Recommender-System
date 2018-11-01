@@ -129,7 +129,7 @@ def recsystem(recuser):
     if x == -1:
         print("You have not rated any anime! Please try rating some anime\n") #If user has not rated any anime
 
-#To populate the 'out.csv' file table everytime an update is made to the 'user_ratings' table
+#To populate the 'out.csv' file everytime an update is made to the 'user_ratings' table
 def insertcsv():
     cs = conn.execute("SELECT * FROM user_ratings;")
     file = open('out.csv', 'w+')
@@ -174,7 +174,7 @@ while True:
                 break
             while True:
                 password = getpass.getpass(prompt='Password', stream = None) #Get login password from user
-                if(password == row[1]):
+                if(password == row[1]): #Checks if the password entered is correct
                     print("\nWelcome!!\n")
                     y = row[2]
                     break;
@@ -182,8 +182,9 @@ while True:
                     print("Wrong password!!")
                     print("Please re-enter your password")
             #To display the list of anime after logging in
-            anime = conn.execute("SELECT * FROM anime_details;")
+            anime = conn.execute("SELECT * FROM anime_details;") #Selects all details from anime_details table.
             print("Here is a list of all the anime in the database\n")
+            #Finds anime with longest name. Used to print the details in a table format which adjusts its size
             lx = conn.execute("SELECT max(length(animename)) FROM anime_details;")
             lg = 0
             for i in lx :
@@ -213,6 +214,7 @@ while True:
                     if(ch == '2'):
                         id = input("Enter anime id: ")
                         anime = conn.execute("SELECT * FROM anime_details;")
+                        #Find average rating of an anime given by users
                         ratings = conn.execute("SELECT animeid, avg(rating) FROM user_ratings GROUP BY animeid;")
                         genres = conn.execute("SELECT genrename FROM genre WHERE animeid = %s" % int(id))
                         crt = conn.execute("SELECT creatorname FROM creators WHERE animeid = %s" % int(id))
@@ -253,12 +255,14 @@ while True:
                         else:
                             if uch == 1:
                                 nm = input("Enter new name : ")
+                                #Updates name for the given user
                                 conn.execute("UPDATE user SET username = ? WHERE userid = ?" , (nm, y))
                                 conn.commit()
                                 print("\nDone!")
 
                             if uch == 2:
                                 nl = input("Enter new location : ")
+                                #Updates location
                                 conn.execute("UPDATE user SET location = ? WHERE userid = ?" , (nl, y))
                                 conn.commit()
                                 print("\nDone!!")
@@ -268,11 +272,12 @@ while True:
                                 rx = conn.execute("SELECT emailid FROM login_info;")
                                 x = -1
                                 for rxw in rx:
-                                    if(rxw[0] == nem):
+                                    if(rxw[0] == nem): #Checks if emails already exists in the database
                                         x = 0
                                         print("This email address already exists!")
                                         break
                                 if x == -1 :
+                                    #Updates email address
                                     conn.execute("UPDATE login_info SET emailid = ? WHERE userid = ?" , (nem, y))
                                     conn.commit()
                                     print("\nDone!")
@@ -281,12 +286,13 @@ while True:
                                 op = input("\nEnter old password : ")
                                 xnp = conn.execute("SELECT password FROM login_info WHERE userid = %s" % (y))
                                 for rxnp in xnp:
-                                    if rxnp[0] == op:
+                                    if rxnp[0] == op: #Checks if old password entered is correct
                                         np = input("Enter new password : ")
                                         np2 = input("Re-enter new password : ")
                                         if np != np2 :
                                             print("\nPasswords do not match!")
                                         else :
+                                            #Updates password
                                             conn.execute("UPDATE login_info SET password = ? WHERE userid = ?" , (np2, y))
                                             conn.commit()
                                             print("\nDone!")
@@ -294,7 +300,7 @@ while True:
                                         print("\nIncorrect password!")
                     
                     if(ch == '6'):
-                        print("\nThank you for using the app! Bye.\n")
+                        print("\nThank you for using the app! Bye.\n") #Logs out
                         break
                     
                     if ch == '4' :
@@ -303,7 +309,7 @@ while True:
                         rx = conn.execute("SELECT animeid FROM anime_details;")
                         x = -1
                         for rxw in rx:
-                            if rxw[0] == naid:
+                            if rxw[0] == naid: #Checks if the given anime ID exists or not
                                 x = 0
                                 break
                         if x == -1:
@@ -312,8 +318,9 @@ while True:
                         rw1 = conn.execute("SELECT animeid FROM user_ratings WHERE userid = %s" % (y))
                         x = -1
                         for rxw1 in rw1:
-                            if rxw1[0] == naid:
+                            if rxw1[0] == naid: #Checks if user has actually rated the anime before
                                 x = 0
+                                #Removes rating
                                 conn.execute("DELETE FROM user_ratings WHERE userid = %s AND animeid = %s" % (y, naid))
                                 conn.commit()
                                 insertcsv() #To update 'out.csv'
@@ -327,7 +334,7 @@ while True:
                         r = conn.execute("SELECT animeid, rating FROM user_ratings WHERE userid = %s"%(y))
                         z = -1
                         for r3 in r:
-                            if r3[0] == rid1 :
+                            if r3[0] == rid1 : #Checks if the user has previously rated the anime
                                 z = 0
                                 print("You have already rated this anime.")
                                 print("Do you want to rate it again?")
@@ -346,6 +353,7 @@ while True:
                                             if rate1 < 1 or rate1 > 5 :
                                                 print("Invalid rating! Please rate again.")
                                             else:
+                                                #Updates rating
                                                 conn.execute("UPDATE user_ratings SET rating = %s WHERE userid = %s AND animeid = %s" % (rate1, y, rid1))
                                                 conn.commit()
                                                 insertcsv() #To update 'out.csv'
@@ -358,24 +366,26 @@ while True:
                                 if rate3 < 1 or rate3 > 5 :
                                     print("Invalid rating! Please rate again.")
                                 else:
+                                    #Inserts new rating
                                     conn.execute("INSERT INTO user_ratings VALUES(%s,%s,%s)" % (y, rid1, rate3))
                                     conn.commit()
                                     insertcsv()
                                     break
                                         
         if int(lch) == 2 :
+            #For a new user to sign up
             print("Hello new user!")
             name = input("Please enter your name : ")
             muid = conn.execute("SELECT max(userid) FROM user;")
             uid = 0
             for row in muid :
-                uid = row[0] + 1
+                uid = row[0] + 1 #Assigns new user ID
             loc = input("Please enter your location : ")
             login = conn.execute("SELECT emailid, password, userid FROM login_info;")
             emid = input("Please enter your email ID : ")
             x = -1
             for row in login :
-                if row[0] == emid :
+                if row[0] == emid : #Checks if user ID already exists in the database
                     x = 0
                     print("This email ID is already in use! Please enter a different one")
                     break
@@ -388,11 +398,12 @@ while True:
                     else :
                         print("Password does not match!! Please enter your password again!!")
             conn.execute("INSERT INTO user(userid, username, location) VALUES (?, ?, ?)" , (uid, name, loc))
-            conn.execute("INSERT INTO login_info VALUES (?, ?, ?)" , (uid, emid, pas1))
+            conn.execute("INSERT INTO login_info VALUES (?, ?, ?)" , (uid, emid, pas1)) #Inserts new user details
             conn.commit()
             print("Please login to your new account")
 
         if int(lch) == 3 :
+            #For admin login
             login = conn.execute("SELECT * FROM admin;")
             print("\nPlease log in to your account")
             emailid = input("\nEmail ID : ")

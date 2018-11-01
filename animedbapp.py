@@ -159,6 +159,7 @@ while True:
             conn.close()
             break
         if int(lch) == 1:
+            rpcn = 0
             login = conn.execute("SELECT emailid, password, userid FROM login_info;")
             print("\nPlease log in to your account\n")
             emailid = input("Email ID : ")
@@ -179,8 +180,12 @@ while True:
                     y = row[2]
                     break;
                 else:
+                    rpcn += 1
                     print("Wrong password!!")
                     print("Please re-enter your password")
+                    if rpcn == 3:
+                        print("\nWrong password entered 3 times\n")
+                        break
             #To display the list of anime after logging in
             anime = conn.execute("SELECT * FROM anime_details;") #Selects all details from anime_details table.
             print("Here is a list of all the anime in the database\n")

@@ -114,24 +114,22 @@ def recsystem(recuser):
             if(animelist == 0): #If there are too less anime rated to recommend an anime
                 print("\nNo recommendation! Please try rating some anime.")
             else:
-                cursor = conn.execute("SELECT animeid, animename FROM anime_details;")
-                cursor2 = conn.execute("SELECT userid, username FROM user;")
-                for j in cursor2:
-                    for k in j:
-                        if(k == n1):
-                            print("\nRecommendations for {} : ".format(j[1]))
-                            print("---------------------------------------\n")
-                for row1 in cursor:
-                    for i in animelist:
-                        if(i == row1[0]):
-                            if row1[0] < 10 :
-                                print("{0}  | {1}".format(row1[0], row1[1]))
-                            else:
-                                print("{0} | {1}".format(row1[0], row1[1]))
+                cursor = conn.execute("SELECT username FROM user WHERE userid = %s" % (n1)) #Finding user name
+                for j in cursor:
+                    print("\nRecommendations for {} : ".format(j[1]))
+                    print("---------------------------------------\n")
+                for i in animelist:
+                    c = conn.execute("SELECT animename FROM anime_details WHERE animeid = %s" %(i)) #finding anime names
+                    for j in c:
+                        if(i < 10):
+                            print("{0}  | {1}".format(i, j[0]))
+                        else:
+                            print("{0} | {1}".format(i, j[0]))
             break
     if x == -1:
-        print("You have not rated any anime! Please try rating some anime\n")
+        print("You have not rated any anime! Please try rating some anime\n") #If user has not rated any anime
 
+#To populate the 'out.csv' file table everytime an update is made to the 'user_ratings' table
 def insertcsv():
     cs = conn.execute("SELECT * FROM user_ratings;")
     file = open('out.csv', 'w+')
@@ -142,6 +140,7 @@ def insertcsv():
     file.close()
     print("\nDone!")
 
+#Start page of the app
 print("\n          ------------------")
 print("          ANIME DATABSE APP")
 print("          ------------------\n")
@@ -163,6 +162,7 @@ while True:
             login = conn.execute("SELECT emailid, password, userid FROM login_info;")
             print("\nPlease log in to your account\n")
             emailid = input("Email ID : ")
+            #To check if entered email adress exists in the database
             x = -1
             y = 0
             for row in login:
@@ -173,7 +173,7 @@ while True:
                 print("\nThis email ID does not exist in the database!\n")
                 break
             while True:
-                password = getpass.getpass(prompt='Password', stream = None)
+                password = getpass.getpass(prompt='Password', stream = None) #Get login password from user
                 if(password == row[1]):
                     print("\nWelcome!!\n")
                     y = row[2]
@@ -181,6 +181,7 @@ while True:
                 else:
                     print("Wrong password!!")
                     print("Please re-enter your password")
+            #To display the list of anime after logging in
             anime = conn.execute("SELECT * FROM anime_details;")
             print("Here is a list of all the anime in the database\n")
             lx = conn.execute("SELECT max(length(animename)) FROM anime_details;")
@@ -208,6 +209,7 @@ while True:
                 if(int(ch) > 6 or int(ch) < 1):
                     print("Invalid Choice! Please choose again")
                 else:
+                    #To view details of an anime by entering the anime ID
                     if(ch == '2'):
                         id = input("Enter anime id: ")
                         anime = conn.execute("SELECT * FROM anime_details;")

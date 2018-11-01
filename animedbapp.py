@@ -185,7 +185,7 @@ while True:
                     print("Please re-enter your password")
                     if rpcn == 3:
                         print("\nWrong password entered 3 times\n")
-                        break
+                        exit()
             #To display the list of anime after logging in
             anime = conn.execute("SELECT * FROM anime_details;") #Selects all details from anime_details table.
             print("Here is a list of all the anime in the database\n")

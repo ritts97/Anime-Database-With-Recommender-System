@@ -8,17 +8,27 @@ from email.mime.text import MIMEText
 import random
 import string
 
+#Connecting to the database
 conn = sqlite3.connect('animedatabase.db')
 
-fromad = "" #put your gmail address within the quotes
+#Put your gmail address within quotes since Google's SMTP service is used in this project
+fromad = ""
 msg = MIMEMultipart()
+#Subject of the email to resent forgotten password.
 sub = "Anime Database App password reset"
 msg['From'] = fromad
 msg['Subject'] = sub
 
+#This function generates a random string on 10 characters as new password which is
+#sent to the user via mail in case he/she has forgotten the password. This password
+#is also updated in the database. The user has to his/her account with this random
+#password and then reset the password once they login to their account.
 def pass_generator(size = 10, chars = string.ascii_letters + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
+#This class creates a nested dictionary from 'out.csv' file which contains user ID,
+#anime ID and their rating for the anime. The nested dictionary is of the form
+# {userid {animeid : rating}}. This is used by the recommender system.
 class AutoVivification(dict):
     def __getitem__(self, item):
         try:
@@ -27,7 +37,8 @@ class AutoVivification(dict):
             value = self[item] = type(self)()
             return value
 
-def mainfn(recuser):
+#This functions contains the recommender system.
+def recsystem(recuser):
     dataset = AutoVivification()
     filename = 'out.csv'
     with open(filename, 'r') as f:
@@ -38,7 +49,11 @@ def mainfn(recuser):
             r1 = int(row[1])
             r2 = int(row[2])
             dataset[r0][r1] = r2
-
+            
+    #This function calculates the pearson correlation coefficient between two people.
+    #This is required how determine how similar two people are. It is assumed that two
+    #people with similar taste of anime will like to watch the same anime. This coefficient
+    #is calculated based on user ratings.
     def pearson(p1,p2):
         both={}
         for item in dataset[p1]:
@@ -61,7 +76,10 @@ def mainfn(recuser):
         else:
             r = num/denom
             return r
-
+        
+    #This function recommends anime based based on the pearson correlation coefficient using
+    #collaborative filtering. If person 'A' and 'B' have similar taste in anime, then 'A' will
+    #get those anime recommended which 'B' has given a high rating.
     def recommend(per):
         total = {}
         sim_sum = {}
@@ -85,17 +103,17 @@ def mainfn(recuser):
             return 0
         return recom_list[0:5]
 
+    #This is to find out if a person has rated any anime or not.
     umax = conn.execute("SELECT userid FROM user_ratings;")
     x = -1
     for r in umax:
         x = 0
-        if r[0] == int(recuser):
+        if r[0] == int(recuser): #If a person has rated anime
             n1 = int(recuser)
             animelist = recommend(n1)
-            if(animelist == 0):
+            if(animelist == 0): #If there are too less anime rated to recommend an anime
                 print("\nNo recommendation! Please try rating some anime.")
             else:
-            #print(animelist)
                 cursor = conn.execute("SELECT animeid, animename FROM anime_details;")
                 cursor2 = conn.execute("SELECT userid, username FROM user;")
                 for j in cursor2:

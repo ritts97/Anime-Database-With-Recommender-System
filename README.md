@@ -1,7 +1,6 @@
 # Anime-Database-With-Recommender-System
-This project was done for my DBMS class in college. This is an anime database command line app which has an anime recommender system as well.
 
-It is written in Python and uses SQLite for database. It uses user to user collaborative filtering and pearson correlation coefficient for anime recommendations.
+This project was done as a class project for the course 'Database Management System'. This is a command line app of an anime database which uses SQLite and Python. It contains anime details and a personal anime recommendation system which recommends anime using pearson correlation coefficient and user-to-user collaborative filtering. Users can sign up and view anime details like the summary, genres, creators, age limit and the number of episodes, rate and unrate animes and update their personal details. The recommender system recommends anime based their ratings. The admin(s) can view user details and add animes to the database. It also uses Google's SMTP server to send emails to the users to reset their password in case they forget their current password.
 
 REQUIREMENTS :-
 Python 3
